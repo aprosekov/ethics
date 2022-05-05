@@ -1,0 +1,76 @@
+---
+title: "LogisticOnMortgages"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## R Markdown
+
+```{r}
+banks <- read.csv("~/GitHub/ethics/banks.csv")
+dt = sort(sample(nrow(banks), nrow(banks)*.7))
+train<-banks[dt,]
+test<-banks[-dt,]
+```
+
+
+```{r}
+banks$derived_msa.md = factor(banks$derived_msa.md)
+```
+
+
+```{r}
+logit <-glm(action_taken~ lei + derived_loan_product_type + derived_dwelling_category + derived_ethnicity + derived_race+ 
+              derived_sex + factor(preapproval) + loan_amount+ applicant_age+ factor(loan_purpose) + factor(lien_status) +
+              factor(open.end_line_of_credit) + factor(business_or_commercial_purpose) + factor(interest_only_payment)+, data = train, family='binomial')
+
+summary(logit)
+
+```
+
+
+```{r}
+library(caret)
+response <- predict(logit, test, type="response")
+confusionMatrix(data = factor(as.numeric(response>.5)), reference = factor(test$action_taken))
+```
+
+
+
+
+```{r}
+logit <-glm(action_taken~ lei + derived_loan_product_type + derived_dwelling_category + derived_ethnicity + derived_race+ 
+              derived_sex + factor(preapproval) + loan_amount+ applicant_age+ factor(loan_purpose), data = train, family='binomial')
+
+summary(logit)
+
+response <- predict(logit, test, type="response")
+confusionMatrix(data = factor(as.numeric(response>.5)), reference = factor(test$action_taken))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
